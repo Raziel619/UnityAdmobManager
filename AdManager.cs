@@ -30,6 +30,10 @@ public class AdManager : MonoBehaviour
     [SerializeField]
     private bool useSampleAds;
     [SerializeField]
+    private bool printDebugMessages = true;
+    [SerializeField]
+    private AdPosition bannerPosition = AdPosition.Bottom;
+    [SerializeField]
     private string[] bannerSceneNames;
 
     private InterstitialAd interstitial;
@@ -48,12 +52,15 @@ public class AdManager : MonoBehaviour
             MobileAds.Initialize(initStatus => { });
             RequestInterstitial();
             SceneManager.sceneLoaded += OnSceneChanged;
+            LoadBannerBySceneName(SceneManager.GetActiveScene().name);
         }
         else
         {
             Destroy(this);
         }
     }
+
+    #region Get ID Functions
 
     private string getBannerID()
     {
@@ -65,9 +72,13 @@ public class AdManager : MonoBehaviour
         return useSampleAds ? sampleIDInterstitial : isPlatformiOS() ? unitIdInterstitialIOS : unitIdInterstitialAndroid;
     }
 
+    #endregion
+
+    #region Banner Functions
+
     public void RequestBanner()
     {
-        bannerView = new BannerView(getBannerID(), AdSize.SmartBanner, AdPosition.Bottom);
+        bannerView = new BannerView(getBannerID(), AdSize.SmartBanner, bannerPosition);
         AdRequest request = new AdRequest.Builder().Build();
         bannerView.LoadAd(request);
         DebugLog("Loading Banner Ad");
@@ -81,6 +92,10 @@ public class AdManager : MonoBehaviour
             bannerView.Destroy();
         }
     }
+
+    #endregion
+
+    #region Interstitial Functions
 
     public void RequestInterstitial()
     {
@@ -98,6 +113,10 @@ public class AdManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Overloads
+
     public void OnDestroy()
     {
         DebugLog("OnDestroy");
@@ -111,14 +130,7 @@ public class AdManager : MonoBehaviour
 
     public void OnSceneChanged(Scene scene, LoadSceneMode mod)
     {
-        if(Array.Exists(bannerSceneNames, element => element == scene.name))
-        {
-            RequestBanner();
-        }
-        else
-        {
-            CloseBanner();
-        }
+        LoadBannerBySceneName(scene.name);
 
     }
 
@@ -131,10 +143,29 @@ public class AdManager : MonoBehaviour
     {
     }*/
 
- #region Helper Methods
+    #endregion
+
+    #region Helper Methods
+
+    public void LoadBannerBySceneName(String name)
+    {
+        if (Array.Exists(bannerSceneNames, element => element == name))
+        {
+            RequestBanner();
+        }
+        else
+        {
+            CloseBanner();
+        }
+    }
+
     public void DebugLog(string msg)
     {
-        Debug.Log("AdManager: " + msg);
+        if (printDebugMessages)
+        {
+            Debug.Log("AdManager: " + msg);
+        }
+        
     }
 
     public static bool isPlatformiOS()
