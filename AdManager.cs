@@ -110,6 +110,7 @@ public class AdManager : MonoBehaviour
         if (interstitial.IsLoaded())
         {
             interstitial.Show();
+            RequestInterstitial();
         }
     }
 
