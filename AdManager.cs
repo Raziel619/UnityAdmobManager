@@ -24,6 +24,10 @@ public class AdManager : MonoBehaviour
     private string sampleIDInterstitial = "ca-app-pub-3940256099942544/1033173712";
     #endregion
 
+    #region PlayerPref Keys
+    private const String INTERSTITIAL_COUNTER = "AdManager_InterstitialCounter";
+    #endregion 
+
     //Space between variables 
     [Space(10)]
 
@@ -112,6 +116,22 @@ public class AdManager : MonoBehaviour
             interstitial.Show();
             RequestInterstitial();
         }
+    }
+
+    // shows an interstitial ad if the limit is exceeded on number of times method has been called
+    public void ShowInterstitialAfterCount(int limit)
+    {
+        int count = PlayerPrefs.GetInt(INTERSTITIAL_COUNTER, 0) + 1;
+
+        if(count >= limit)
+        {
+            ShowInterstitial();
+            count = 0;
+        }
+
+        PlayerPrefs.SetInt(INTERSTITIAL_COUNTER, count);
+        PlayerPrefs.Save();
+
     }
 
     #endregion
